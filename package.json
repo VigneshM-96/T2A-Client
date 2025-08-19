@@ -2,7 +2,7 @@
   "name": "client",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://github.com/VigneshM-96/T2A-Client",
+  "homepage": "https://VigneshM-96.github.io/T2A-Client",
   "dependencies": {
     "@popperjs/core": "^2.11.8",
     "@testing-library/dom": "^10.4.0",
