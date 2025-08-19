@@ -7,28 +7,29 @@ export default function TextToAudio() {
   const [language, setLanguage] = useState("en");
   const [audioUrl, setAudioUrl] = useState(null);
 
-  // Use Render backend URL when not localhost
+  // Use Render backend URL
   const BASE_URL = "https://t2a-server.onrender.com";
 
-  const handleTextUpload = async (e) => {
+  const handleTextUpload = (e) => {
     const file = e.target.files[0];
-    if (!file) return;
-    const formData = new FormData();
-    formData.append("file", file);
-
-    try {
-      const res = await axios.post(`${BASE_URL}/api/upload`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      setText(res.data.text);
-    } catch (err) {
-      console.error("Upload error:", err.response?.data || err.message);
+    if (!file || file.type !== "text/plain") {
+      alert("Please upload a valid .txt file");
+      return;
     }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      setText(event.target.result);
+    };
+    reader.onerror = () => {
+      alert("Failed to read file.");
+    };
+    reader.readAsText(file);
   };
 
   const handleConvert = async () => {
     if (!text.trim()) {
-      alert("Please enter some text before converting.");
+      alert("Please enter or upload text before converting.");
       return;
     }
 
@@ -43,6 +44,7 @@ export default function TextToAudio() {
       setAudioUrl(res.data.audio_url);
     } catch (err) {
       console.error("Conversion error:", err.response?.data || err.message);
+      alert("Error during conversion.");
     }
   };
 
@@ -54,6 +56,7 @@ export default function TextToAudio() {
       const blob = new Blob([response.data]);
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
+
       const fileName =
         (text.substring(0, 20).replace(/[^a-z0-9]/gi, "_") || "speech") + ".mp3";
 
@@ -66,6 +69,7 @@ export default function TextToAudio() {
       window.URL.revokeObjectURL(url);
     } catch (err) {
       console.error("Download error:", err.response?.data || err.message);
+      alert("Error during download.");
     }
   };
 
@@ -83,8 +87,8 @@ export default function TextToAudio() {
 
       <input
         type="file"
+        accept=".txt"
         className="form-control mb-3"
-        accept="audio/wav,audio/*"
         onChange={handleTextUpload}
       />
 
@@ -99,7 +103,7 @@ export default function TextToAudio() {
       </select>
 
       <button className="btn btn-primary mb-3" onClick={handleConvert}>
-        Convert
+        Convert to Audio
       </button>
 
       {audioUrl && (
@@ -107,7 +111,7 @@ export default function TextToAudio() {
           <audio controls src={audioUrl}></audio>
           <br />
           <button className="btn btn-success mt-3" onClick={handleDownload}>
-            Download
+            Download MP3
           </button>
         </div>
       )}

@@ -53,30 +53,7 @@ export default function AudioToText() {
       });
   };
 
-  const handleRecord = async () => {
-    if (isRecording) {
-      mediaRecorder.current.stop();
-      setIsRecording(false);
-    } else {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorder.current = new MediaRecorder(stream);
-      recordedChunks.current = [];
-
-      mediaRecorder.current.ondataavailable = (e) => {
-        if (e.data.size > 0) recordedChunks.current.push(e.data);
-      };
-
-      mediaRecorder.current.onstop = () => {
-        const blob = new Blob(recordedChunks.current, { type: "audio/mp3" });
-        const file = new File([blob], "recorded_audio.mp3", { type: "audio/mp3" });
-        setAudioFile(file);
-      };
-
-      mediaRecorder.current.start();
-      setIsRecording(true);
-    }
-  };
-
+  
   return (
     <div className="container mt-5 d-flex justify-content-center align-items-center flex-column text-center" style={{ maxWidth: "600px" }}>
       <h2 className="mb-4 fw-bold">🎤.wav Audio to Text</h2>
@@ -88,9 +65,6 @@ export default function AudioToText() {
         onChange={handleFileUpload}
       />
 
-      <button className={`btn ${isRecording ? "btn-danger" : "btn-warning"} mb-3`} onClick={handleRecord}>
-        {isRecording ? "⏹️ Stop Recording" : "🎙️ Record Audio"}
-      </button>
 
       <button className="btn btn-primary mb-4" onClick={handleConvert} disabled={!audioFile}>
         🔄 Convert
